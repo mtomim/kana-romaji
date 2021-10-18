@@ -1,4 +1,3 @@
-var toRomaji = require('./lib/kana-romaji')
+import { toRomaji } from './lib/kana-romaji';
 
-module.exports = toRomaji
-module.exports.default = toRomaji
+export default toRomaji;
