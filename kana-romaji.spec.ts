@@ -34,6 +34,7 @@ describe('kanaRomaji.ts', () => {
         ['きいはんとう', 'kīhantō'],
         ['ろくおんテープ', 'rokuonTĒPU'],
         ['S.O.S.はエスオーエス', 'S.O.S.haESUŌESU'],
+        ['こうこうせい、しょうがくせい、だいがくせい', 'kōkōsei、shōgakusei、daigakusei'],
     ])('translates %s to %s', (input, expected) => {
         expect(toRomaji(input)).toBe(expected);
     })

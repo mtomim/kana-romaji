@@ -24,3 +24,14 @@ ex) 'きいはんとうのばあい'
 
 'とおり'
 - should be and is 'tōri'
+
+## What about wanakana?
+WanaKana https://github.com/WaniKani/WanaKana offers various conversions between Kana and Romaji. Their functionality was somewhat limited in terms of rules of Romaji. Sequence 'ou' in 'こうこうせい' is transformed into 'koukousei' instead of
+'kōkōsei'.
+
+## References
+University of Tokyo had the following document for recommended Romaji representation.
+- https://park.itc.u-tokyo.ac.jp/eigo/UT-Komaba-Nihongo-no-romaji-hyoki-v1.pdf
+
+## I use this!
+I'm using this library inside `word-decks` https://github.com/mtomim/word-decks project, a simple learning-card application.
