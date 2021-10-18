@@ -21,12 +21,13 @@ const map = {
     z: [..."ざずぜぞ"],
     d: [..."だでど"],
     g: [..."がぎぐげご"],
-    repeatNextConsonant: ["っ"]
+    repeatNextConsonant: ["っ"],
+    v: ["ゔ"],
   },
   vowel: {
     a: [..."あかがさざただなはばぱまやらわぁゃ"],
     i: [..."いきぎしじちぢにひびぴみりぃ"],
-    u: [..."うくぐすずつづぬふぶぷむゆるぅゅ"],
+    u: [..."うくぐすずつづぬふぶぷむゆるぅゅゔ"],
     e: [..."えけげせぜてでねへべぺめれぇ"],
     o: [..."おこごそぞとどのほぼぽもよろをょぉ"],
     "-": ["ー"]
@@ -128,14 +129,14 @@ export function toRomaji(kana: string): string {
         vowel = undefined;
       } else if (consonant === "supPre") {
         consonant = "";
-        if (previous.consonant === "f") {
+        if ([..."fv"].includes(previous.consonant)) {
           delete previous.vowel;
         }
       } else if (consonant === "ySupPre") {
         consonant = "y";
         if (previous) {
           if (["i", "e"].includes(previous.vowel || "")
-            || previous.consonant === "f" && previous.vowel === "u") {
+            || [..."fv"].includes(previous.consonant) && previous.vowel === "u") {
             delete previous.vowel;
           }
           if (["sh", "ch", "j"].includes(previous.consonant)) {

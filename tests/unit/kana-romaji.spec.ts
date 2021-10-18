@@ -1,4 +1,4 @@
-import { toRomaji } from "./kana-romaji";
+import { toRomaji } from "../../src/kana-romaji";
 
 describe('kanaRomaji.ts', () => {
     test.each([
@@ -35,6 +35,8 @@ describe('kanaRomaji.ts', () => {
         ['ろくおんテープ', 'rokuonTĒPU'],
         ['S.O.S.はエスオーエス', 'S.O.S.haESUŌESU'],
         ['こうこうせい、しょうがくせい、だいがくせい', 'kōkōsei、shōgakusei、daigakusei'],
+        ['ヴュー', 'VYŪ'],
+        ['ゔぃ', 'vi'],
     ])('translates %s to %s', (input, expected) => {
         expect(toRomaji(input)).toBe(expected);
     })
