@@ -23,7 +23,7 @@
     "romaji",
     "transliteration"
   ],
-  "author": "Masaru Tomimitsu (masaru.tomimitsu at Gmail)",
+  "author": "Masaru Tomimitsu <masaru.tomimitsu at gmail> (https://github.com/mtomim)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/mtomim/kana-romaji/issues"
