@@ -1,6 +1,6 @@
 {
   "name": "kana-romaji",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "A simple function to convert Hiragana and Katakana into Romaji representation.",
   "main": "index.js",
   "scripts": {
