@@ -12,7 +12,8 @@ ex)
 - 'ふりょう', 'furyō'
 - 'しょうがくせい', 'shōgakusei'
 
-Caveat: The rule to not consider as prolonged vowel sound
+## Caveat
+The rule to not consider as prolonged vowel sound
 when the consecutive vowels are from separate Kanjis is not respected.
 
 ex) 'きいはんとうのばあい'
@@ -26,6 +27,7 @@ ex) 'きいはんとうのばあい'
 - should be and is 'tōri'
 
 ## Usage
+### Typescript or modern es
 ```js
 import { toRomaji } from 'kana-romaji';
 
@@ -34,9 +36,15 @@ if (toRomaji('ローマじ') === 'RŌMAji') {
 }
 ```
 
+### Old common JS
+```js
+var kanaRomaji = require("kana-romaji")
+
+console.log(kanaRomaji.toRomaji('おばあさん'))
+```
+
 ## What about wanakana?
-WanaKana https://github.com/WaniKani/WanaKana offers various conversions between Kana and Romaji. Their functionality was somewhat limited in terms of rules of Romaji. Sequence 'ou' in 'こうこうせい' is transformed into 'koukousei' instead of
-'kōkōsei'.
+WanaKana https://github.com/WaniKani/WanaKana offers various conversions between Kana and Romaji. Their functionality was somewhat limited in terms of rules of Romaji. Sequences of vowels 'おう' in 'こうこうせい' are transformed into 'ou' as in '*koukousei*' instead of '**kōkōsei**'. Despite all above, I appraise them! Thank you for being the inspiration!
 
 ## References
 University of Tokyo had the following document for recommended Romaji representation.
