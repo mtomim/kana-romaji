@@ -25,6 +25,15 @@ ex) 'きいはんとうのばあい'
 'とおり'
 - should be and is 'tōri'
 
+## Usage
+```js
+import { toRomaji } from 'kana-romaji';
+
+if (toRomaji('ローマじ') === 'RŌMAji') {
+    // do your work
+}
+```
+
 ## What about wanakana?
 WanaKana https://github.com/WaniKani/WanaKana offers various conversions between Kana and Romaji. Their functionality was somewhat limited in terms of rules of Romaji. Sequence 'ou' in 'こうこうせい' is transformed into 'koukousei' instead of
 'kōkōsei'.
