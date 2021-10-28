@@ -33,11 +33,11 @@ const map = {
     "-": ["ー"]
   },
   longVowel: {
-    a: 'ā',
-    i: 'ī',
-    u: 'ū',
-    e: 'ē',
-    o: 'ō',
+    a: 'ā',
+    i: 'ī',
+    u: 'ū',
+    e: 'ē',
+    o: 'ō',
   } as { [key: string]: string }
 };
 
