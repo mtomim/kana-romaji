@@ -1,5 +1,5 @@
 {
-  "name": "@mtomim/kana-romaji",
+  "name": "kana-romaji",
   "version": "0.1.7",
   "description": "A simple function to convert Hiragana and Katakana into Romaji representation.",
   "main": "lib/index.js",
