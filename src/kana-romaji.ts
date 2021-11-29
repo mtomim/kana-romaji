@@ -51,7 +51,7 @@ declare interface tempObj {
 
 const [lowerKatakana, upperKatakana] = [0x30A1, 0x30FB];
 
-function isKatakana(ji: string, extended=false): boolean {
+function isKatakana(ji: string, extended = false): boolean {
   const code = ji.codePointAt(0);
   return code! >= lowerKatakana && code! < (extended ? 0x30FF : upperKatakana);
 }
@@ -68,6 +68,56 @@ function convHiragana(ji: string): string {
     return String.fromCharCode(ji.codePointAt(0)! - 0x60);
   }
   return ji;
+}
+
+interface Strategy {
+  matches: (previous: tempObj, vowel: string) => boolean;
+  doWork: (previous: tempObj, vowel: string) => void;
+}
+
+class HalfConsonantStrategies {
+  static strategies: Strategy[] = [
+    // JE, CHE, SHE
+    {
+      matches: (previous, vowel) => ['j', 'ch', 'sh'].includes(previous.consonant) && previous.vowel === 'i' && vowel === 'e',
+      doWork: (previous, vowel) => delete previous.vowel,
+    },
+    // DU, TU
+    {
+      matches: (previous, vowel) => [...'td'].includes(previous.consonant) && previous.vowel === 'o' && vowel === 'u',
+      doWork: (previous, vowel) => delete previous.vowel,
+    },
+    // DI, TI
+    {
+      matches: (previous, vowel) => [...'td'].includes(previous.consonant) && previous.vowel === 'e' && vowel === 'i',
+      doWork: (previous, vowel) => delete previous.vowel,
+    },
+    // SI
+    {
+      matches: (previous, vowel) => ['s', 'z'].includes(previous.consonant) && previous.vowel === 'u' && vowel === 'i',
+      doWork: (previous, vowel) => delete previous.vowel,
+    },
+    // Fa, Fi, Fu, Fe, Fo, Va, Vi, Vu, Ve, Vo
+    {
+      matches: (previous, vowel) => [..."fv"].includes(previous.consonant),
+      doWork: (previous, vowel) => delete previous.vowel,
+    },
+    // YE
+    {
+      matches: (previous, vowel) => previous.consonant === '' && previous.vowel === 'i' && vowel === 'e',
+      doWork: (previous, vowel) => previous.vowel = 'y',
+    },
+    // WO, WI, WE
+    {
+      matches: (previous, vowel) => previous.consonant === '' && previous.vowel === 'u' && [...'oei'].includes(vowel),
+      doWork: (previous, vowel) => previous.vowel = 'w',
+    },
+  ];
+  static doWork(previous: tempObj, vowel: string): void {
+    HalfConsonantStrategies.strategies
+      .filter(strategy => strategy.matches(previous, vowel))
+      .forEach(strategy => strategy.doWork(previous, vowel));
+  }
 }
 
 /**
@@ -128,10 +178,8 @@ export function toRomaji(kana: string): string {
         previous.vowel = map.longVowel[previous.vowel || ''];
         vowel = undefined;
       } else if (consonant === "supPre") {
+        HalfConsonantStrategies.doWork(previous, vowel!)
         consonant = "";
-        if ([..."fv"].includes(previous.consonant)) {
-          delete previous.vowel;
-        }
       } else if (consonant === "ySupPre") {
         consonant = "y";
         if (previous) {
