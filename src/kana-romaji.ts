@@ -72,7 +72,12 @@ function convHiragana(ji: string): string {
 
 interface Strategy {
   matches: (previous: tempObj, vowel: string) => boolean;
-  doWork: (previous: tempObj, vowel: string) => void;
+  doWork: (previous: tempObj, curr: tempObj) => void;
+}
+
+interface GlobalStrategy {
+  matches: (prev: tempObj, curr: tempObj, next: tempObj) => boolean;
+  doWork: (prev: tempObj, curr: tempObj, next: tempObj) => void;
 }
 
 class HalfConsonantStrategies {
@@ -80,44 +85,116 @@ class HalfConsonantStrategies {
     // JE, CHE, SHE
     {
       matches: (previous, vowel) => ['j', 'ch', 'sh'].includes(previous.consonant) && previous.vowel === 'i' && vowel === 'e',
-      doWork: (previous, vowel) => delete previous.vowel,
+      doWork: (previous) => delete previous.vowel,
     },
     // DU, TU
     {
       matches: (previous, vowel) => [...'td'].includes(previous.consonant) && previous.vowel === 'o' && vowel === 'u',
-      doWork: (previous, vowel) => delete previous.vowel,
+      doWork: (previous) => delete previous.vowel,
     },
     // DI, TI
     {
       matches: (previous, vowel) => [...'td'].includes(previous.consonant) && previous.vowel === 'e' && vowel === 'i',
-      doWork: (previous, vowel) => delete previous.vowel,
+      doWork: (previous) => delete previous.vowel,
     },
     // SI
     {
       matches: (previous, vowel) => ['s', 'z'].includes(previous.consonant) && previous.vowel === 'u' && vowel === 'i',
-      doWork: (previous, vowel) => delete previous.vowel,
+      doWork: (previous) => delete previous.vowel,
     },
     // Fa, Fi, Fu, Fe, Fo, Va, Vi, Vu, Ve, Vo
     {
       matches: (previous, vowel) => [..."fv"].includes(previous.consonant),
-      doWork: (previous, vowel) => delete previous.vowel,
+      doWork: (previous) => delete previous.vowel,
     },
     // YE
     {
       matches: (previous, vowel) => previous.consonant === '' && previous.vowel === 'i' && vowel === 'e',
-      doWork: (previous, vowel) => previous.vowel = 'y',
+      doWork: (previous) => previous.vowel = 'y',
     },
     // WO, WI, WE
     {
       matches: (previous, vowel) => previous.consonant === '' && previous.vowel === 'u' && [...'oei'].includes(vowel),
-      doWork: (previous, vowel) => previous.vowel = 'w',
+      doWork: (previous) => previous.vowel = 'w',
     },
   ];
-  static doWork(previous: tempObj, vowel: string): void {
+  static doWork(previous: tempObj, curr: tempObj): void {
     HalfConsonantStrategies.strategies
-      .filter(strategy => strategy.matches(previous, vowel))
-      .forEach(strategy => strategy.doWork(previous, vowel));
+      .filter(strategy => strategy.matches(previous, curr.vowel!))
+      .forEach(strategy => strategy.doWork(previous, curr));
   }
+}
+
+class SmallYayuyoStrategies {
+  static strategies: Strategy[] = [
+    {
+      matches: (previous, vowel) => ["i", "e"].includes(previous.vowel || ""),
+      doWork: (previous) => delete previous.vowel,
+    },
+    {
+      matches: (previous, vowel) => [..."fv"].includes(previous.consonant) && previous.vowel === "u",
+      doWork: (previous) => delete previous.vowel,
+    },
+    {
+      matches: (previous, vowel) => ["sh", "ch", "j"].includes(previous.consonant),
+      doWork: (previous, curr) => curr.consonant = ""
+    },
+  ];
+  static doWork(previous: tempObj, curr: tempObj): void {
+    curr.consonant = "y";
+    if (!previous) {
+      return;
+    }
+    SmallYayuyoStrategies.strategies
+      .filter(strategy => strategy.matches(previous, curr.vowel!))
+      .forEach(strategy => strategy.doWork(previous, curr));
+  }
+}
+
+class GlobalStrategies {
+  static strategies: GlobalStrategy[] = [
+    {
+      matches: (prev, curr, next) => (curr.vowel === '-' && prev && !!prev.vowel)
+        || (curr.vowel === prev?.vowel && !curr.consonant)
+        || (curr.vowel === 'u' && !curr.consonant && prev?.vowel === 'o'),
+      doWork: (prev, curr, next) => {
+        prev.vowel = map.longVowel[prev.vowel || ''];
+        curr.vowel = undefined;
+      }
+    },
+    {
+      matches: (prev, curr, next) => curr.consonant === "supPre",
+      doWork: (prev, curr, next) => {
+        HalfConsonantStrategies.doWork(prev, curr);
+        curr.consonant = "";
+      }
+    },
+    {
+      matches: (prev, curr, next) => curr.consonant === "ySupPre",
+      doWork: (prev, curr, next) => SmallYayuyoStrategies.doWork(prev, curr),
+    },
+    {
+      matches: (prev, curr, next) => curr.consonant === "repeatNextConsonant",
+      doWork: (prev, curr, next) => {
+        curr.consonant = next?.consonant.charAt(0) || "";
+        if (next?.consonant === "ch") {
+          curr.consonant = "t";
+        }
+      }
+    },
+    {
+      matches: (prev, curr, next) => curr.consonant === "n" && !curr.vowel,
+      doWork: (prev, curr, next) => {
+        if (next && (!next.consonant || next.consonant === 'y')) {
+          curr.consonant = "n’";
+        }
+      }
+    }
+  ];
+  static doWork = (prev: tempObj, curr: tempObj, next: tempObj): void =>
+    GlobalStrategies.strategies
+      .filter(strategy => strategy.matches(prev, curr, next))
+      .forEach(strategy => strategy.doWork(prev, curr, next))
 }
 
 /**
@@ -168,44 +245,12 @@ export function toRomaji(kana: string): string {
       through,
       char,
     } as tempObj))
-    .reduce((prev, { consonant, vowel, katakana, through, char }, i, arr) => {
+    .reduce((target, curr, i, arr) => {
       const next = arr[i + 1];
-      const previous = prev[i - 1];
-      if ((vowel === '-' && previous && previous.vowel)
-        || (vowel === previous?.vowel && !consonant)
-        || (vowel === 'u' && !consonant && previous?.vowel === 'o')
-      ) {
-        previous.vowel = map.longVowel[previous.vowel || ''];
-        vowel = undefined;
-      } else if (consonant === "supPre") {
-        HalfConsonantStrategies.doWork(previous, vowel!)
-        consonant = "";
-      } else if (consonant === "ySupPre") {
-        consonant = "y";
-        if (previous) {
-          if (["i", "e"].includes(previous.vowel || "")
-            || [..."fv"].includes(previous.consonant) && previous.vowel === "u") {
-            delete previous.vowel;
-          }
-          if (["sh", "ch", "j"].includes(previous.consonant)) {
-            consonant = "";
-          }
-        }
-      } else if (consonant === "repeatNextConsonant") {
-        consonant = next?.consonant.charAt(0) || "";
-        if (next?.consonant === "ch") {
-          consonant = "t";
-        }
-      } else if (consonant === "n" && !vowel) {
-        if (next && !next.consonant) {
-          consonant = "n-";
-        }
-        if (next && [..."bpm"].includes(next.consonant.charAt(0))) {
-          consonant = "m";
-        }
-      }
-      prev.push({ consonant, vowel, katakana, through, char });
-      return prev;
+      const previous = target[i - 1];
+      GlobalStrategies.doWork(previous, curr, next);
+      target.push(curr);
+      return target;
     }, [] as tempObj[])
     .map(({ consonant, vowel, katakana, through, char }) => {
       if (through) {
