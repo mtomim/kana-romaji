@@ -11,7 +11,7 @@ const map = {
     m: [..."まみむめも"],
     y: [..."やゆよ"],
     ySupPre: [..."ゃゅょ"],
-    supPre: [..."ぁぃぅぇぉ"],
+    supPre: [..."ぁぃぅぇぉゎ"],
     r: [..."らりるれろ"],
     w: [..."わを",],
     f: ["ふ"],
@@ -25,7 +25,7 @@ const map = {
     v: ["ゔ"],
   },
   vowel: {
-    a: [..."あかがさざただなはばぱまやらわぁゃ"],
+    a: [..."あかがさざただなはばぱまやらわぁゃゎ"],
     i: [..."いきぎしじちぢにひびぴみりぃ"],
     u: [..."うくぐすずつづぬふぶぷむゆるぅゅゔ"],
     e: [..."えけげせぜてでねへべぺめれぇ"],
@@ -80,7 +80,7 @@ interface GlobalStrategy {
   doWork: (prev: tempObj, curr: tempObj, next: tempObj) => void;
 }
 
-class HalfConsonantStrategies {
+class SmallAiueoStrategies {
   static strategies: Strategy[] = [
     // JE, CHE, SHE
     {
@@ -117,9 +117,29 @@ class HalfConsonantStrategies {
       matches: (previous, vowel) => previous.consonant === '' && previous.vowel === 'u' && [...'oei'].includes(vowel),
       doWork: (previous) => previous.vowel = 'w',
     },
+    // TWA
+    {
+      matches: (previous, vowel) => previous.consonant === 't' && previous.vowel === 'o' && vowel !== 'u',
+      doWork: (previous) => previous.vowel = 'w',
+    },
+    // GWA, KWA
+    {
+      matches: (previous, vowel) => ['k','g'].includes(previous.consonant) && previous.vowel === 'u' && vowel !== 'u',
+      doWork: (previous) => previous.vowel = 'w',
+    },
+    // HYE, BYE, PYE, KYE
+    {
+      matches: (previous, vowel) => [...'bhkp'].includes(previous.consonant) && previous.vowel === 'i' && vowel === 'e',
+      doWork: (previous) => previous.vowel = 'y',
+    },
+    // TSA, TSI, TSE, TSO
+    {
+      matches: (previous, vowel) => previous.consonant === 'ts' && previous.vowel === 'u',
+      doWork: (previous) => delete previous.vowel,
+    },
   ];
   static doWork(previous: tempObj, curr: tempObj): void {
-    HalfConsonantStrategies.strategies
+    SmallAiueoStrategies.strategies
       .filter(strategy => strategy.matches(previous, curr.vowel!))
       .forEach(strategy => strategy.doWork(previous, curr));
   }
@@ -128,7 +148,7 @@ class HalfConsonantStrategies {
 class SmallYayuyoStrategies {
   static strategies: Strategy[] = [
     {
-      matches: (previous, vowel) => ["i", "e"].includes(previous.vowel || ""),
+      matches: (previous, vowel) => ["i", "e"].includes(previous.vowel!),
       doWork: (previous) => delete previous.vowel,
     },
     {
@@ -165,7 +185,7 @@ class GlobalStrategies {
     {
       matches: (prev, curr, next) => curr.consonant === "supPre",
       doWork: (prev, curr, next) => {
-        HalfConsonantStrategies.doWork(prev, curr);
+        SmallAiueoStrategies.doWork(prev, curr);
         curr.consonant = "";
       }
     },
