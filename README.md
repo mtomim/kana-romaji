@@ -48,8 +48,13 @@ University of Tokyo had the following document for recommended Romaji representa
 I'm using this library inside `word-decks` https://github.com/mtomim/word-decks project, a simple learning-card application.
 
 # Updates
+### 0.1.10 (2024)
 - Correction of issue #1, namely, "てぃ" => "tei" instead of "ti"
 - Use apostrophe (’) instead of hyphen (-) after 'n' and before a vowel (or 'y') when they are not to be pronounced together
 
 ex. ほんや => hon’ya, ほにゃ => honya
 - Prefer using 'n' for ん even before 'p', 'b' or 'm'
+
+### 0.1.11 (2026)
+- **Fixed long vowel sequence handling**: Correctly processes combinations of syllables followed by vowel-only characters and long vowel markers (e.g., `ユキノオー` → `YUKINOŌ`)
+- **Fixed 'n' apostrophe issue**: Prevents incorrect apostrophes before numbers and Latin characters (e.g., `ポリゴン２` → `PORIGON２` instead of `PORIGON'２`)
