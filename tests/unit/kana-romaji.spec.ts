@@ -154,6 +154,12 @@ describe('kanaRomaji.ts', () => {
         ['ツィゴイネル', 'TSIGOINERU'],
         ['ツェツェばえ', 'TSETSEbae'],
         ['ケカッツォ', 'KEKATTSO'],
+        // Issue with long vowel sequences: syllable + vowel-only + long vowel marker
+        ['ユキノオー', 'YUKINOŌ'],
+        ['わあーい', 'waāi'],
+        // Issue with 'n' apostrophe before numbers and Latin characters
+        ['ポリゴン２', 'PORIGON２'],
+        ['ポリゴンZ', 'PORIGONZ'],
     ])('translates %s into %s', (input, expected) => {
         expect(toRomaji(input)).toBe(expected);
     })
