@@ -175,7 +175,7 @@ class GlobalStrategies {
   static strategies: GlobalStrategy[] = [
     {
       matches: (prev, curr, next) => (curr.vowel === '-' && prev && !!prev.vowel)
-        || (curr.vowel === prev?.vowel && !curr.consonant)
+        || (curr.vowel === prev?.vowel && !curr.consonant && !(prev.consonant && next?.vowel === '-'))
         || (curr.vowel === 'u' && !curr.consonant && prev?.vowel === 'o'),
       doWork: (prev, curr, next) => {
         prev.vowel = map.longVowel[prev.vowel || ''];
@@ -205,7 +205,7 @@ class GlobalStrategies {
     {
       matches: (prev, curr, next) => curr.consonant === "n" && !curr.vowel,
       doWork: (prev, curr, next) => {
-        if (next && (!next.consonant || next.consonant === 'y')) {
+        if (next && (!next.consonant || next.consonant === 'y') && !next.through) {
           curr.consonant = "n’";
         }
       }
